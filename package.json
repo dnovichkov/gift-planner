@@ -1,0 +1,18 @@
+{
+  "name": "gift-planner",
+  "version": "1.0.0",
+  "description": "Веб-приложение для планирования подарков",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000 --open",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "idb": "^7.1.1"
+  }
+}

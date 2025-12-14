@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Планировщик подарков - управляйте подарками к праздникам">
+  <title>Gift Planner</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="src/styles/tokens.css">
+  <link rel="stylesheet" href="src/styles/base.css">
+  <link rel="stylesheet" href="src/styles/components.css">
+</head>
+<body>
+  <!-- App Header -->
+  <header class="app-header" role="banner">
+    <div class="container">
+      <h1 class="app-title">
+        <span class="app-title__icon" aria-hidden="true">🎁</span>
+        Gift Planner
+      </h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="app-main" class="app-main" role="main">
+    <!-- Содержимое будет рендериться здесь JavaScript'ом -->
+    <div class="loading-state">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Загрузка приложения...</p>
+    </div>
+  </main>
+
+  <!-- Modal container -->
+  <div id="modal-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Toast notifications -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- JavaScript -->
+  <script type="module" src="src/js/main.js"></script>
+</body>
+</html>
