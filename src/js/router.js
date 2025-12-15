@@ -18,13 +18,21 @@ export class Router {
    * Инициализация роутера
    */
   init() {
-    console.log('Router инициализирован');
-    
+    console.log('[ROUTER] init() вызван');
+    console.log('[ROUTER] Текущий hash:', window.location.hash);
+    console.log('[ROUTER] Зарегистрированные маршруты:', Array.from(this.routes.keys()));
+
     window.addEventListener('hashchange', () => this.handleRouteChange());
-    window.addEventListener('load', () => this.handleRouteChange());
-    
+    console.log('[ROUTER] hashchange listener добавлен');
+
     // Обработка кнопки "Назад" браузера
     window.addEventListener('popstate', () => this.handleRouteChange());
+    console.log('[ROUTER] popstate listener добавлен');
+
+    // Вызываем обработку текущего маршрута сразу при инициализации
+    console.log('[ROUTER] Вызываем handleRouteChange()...');
+    this.handleRouteChange();
+    console.log('[ROUTER] init() завершён');
   }
 
   /**
@@ -42,25 +50,32 @@ export class Router {
    */
   handleRouteChange() {
     const hash = window.location.hash.replace('#', '') || '/';
-    console.log(`Route change: ${hash}`);
-    
+    console.log('[ROUTER] handleRouteChange() - hash:', hash);
+
     const { path, params } = this.parsePath(hash);
+    console.log('[ROUTER] parsePath результат:', { path, params });
+
     const route = this.findRoute(path);
-    
+    console.log('[ROUTER] findRoute результат:', route);
+
     if (route) {
       this.currentRoute = path;
       this.currentParams = params;
-      
+
+      const routeConfig = this.routes.get(path);
+      console.log('[ROUTER] Получен route config:', routeConfig);
+
       // Эмитируем событие изменения маршрута
+      console.log('[ROUTER] Эмитируем ROUTE_CHANGED...');
       eventBus.emit(AppEvents.ROUTE_CHANGED, {
         path: this.currentRoute,
         params: this.currentParams,
-        route: this.routes.get(path)
+        route: routeConfig
       });
-      
-      console.log(`Маршрут найден: ${path}`, params);
+
+      console.log('[ROUTER] Маршрут найден и обработан:', path, params);
     } else {
-      console.warn(`Маршрут не найден: ${path}, переход на главную`);
+      console.warn('[ROUTER] Маршрут не найден:', path, ', переход на главную');
       this.navigate('/');
     }
   }

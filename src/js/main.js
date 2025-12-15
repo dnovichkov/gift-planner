@@ -1,3 +1,5 @@
+console.log('[MAIN] Начало загрузки main.js');
+
 import { router } from './router.js';
 import { eventBus, AppEvents } from './events.js';
 import { db } from './db/idb-wrapper.js';
@@ -5,6 +7,8 @@ import { toast } from './components/Toast.js';
 import { HomePage } from './pages/HomePage.js';
 import { HolidayDashboard } from './pages/HolidayDashboard.js';
 import { RecipientDetail } from './pages/RecipientDetail.js';
+
+console.log('[MAIN] Все импорты загружены');
 
 class App {
   constructor() {
@@ -15,21 +19,35 @@ class App {
   }
 
   async init() {
-    console.log('Gift Planner запускается...');
+    console.log('[APP] 1. Gift Planner запускается...');
 
     try {
       // Инициализируем базу данных
+      console.log('[APP] 2. Открываем базу данных...');
       await this.db.openDb();
-      console.log('База данных готова');
+      console.log('[APP] 3. База данных готова');
 
       // Инициализируем Toast
+      console.log('[APP] 4. Инициализируем Toast...');
       toast.init();
+      console.log('[APP] 5. Toast готов');
 
       // Регистрируем маршруты
+      console.log('[APP] 6. Регистрируем маршруты...');
       this.setupRoutes();
+      console.log('[APP] 7. Маршруты зарегистрированы');
+
+      // Слушаем изменения маршрута ПЕРЕД инициализацией роутера
+      console.log('[APP] 8. Подписываемся на ROUTE_CHANGED...');
+      eventBus.on(AppEvents.ROUTE_CHANGED, (data) => {
+        console.log('[APP] ROUTE_CHANGED event received:', data);
+        this.handleRouteChange(data);
+      });
 
       // Инициализируем роутер
+      console.log('[APP] 9. Инициализируем роутер...');
       this.router.init();
+      console.log('[APP] 10. Роутер инициализирован');
 
       // Глобальный обработчик ошибок
       window.addEventListener('error', (e) => {
@@ -37,16 +55,12 @@ class App {
         toast.error('Произошла ошибка: ' + (e.error?.message || 'Неизвестная ошибка'));
       });
 
-      // Слушаем изменения маршрута
-      eventBus.on(AppEvents.ROUTE_CHANGED, (data) => {
-        this.handleRouteChange(data);
-      });
-
       // Глобальное событие загрузки данных
       eventBus.emit(AppEvents.DATA_LOADED);
+      console.log('[APP] 11. Инициализация завершена');
 
     } catch (error) {
-      console.error('Ошибка инициализации приложения:', error);
+      console.error('[APP] ОШИБКА инициализации приложения:', error);
       document.getElementById('app-main').innerHTML = `
         <div class="error-state">
           <h1>Ошибка инициализации</h1>
@@ -69,26 +83,32 @@ class App {
   }
 
   handleRouteChange({ path, params, route }) {
+    console.log('[APP] handleRouteChange вызван:', { path, params, route });
+
     // Уничтожаем предыдущую страницу
     if (this.currentPage) {
+      console.log('[APP] Уничтожаем предыдущую страницу');
       this.currentPage.destroy();
       this.currentPage = null;
     }
 
     const container = document.getElementById('app-main');
     if (!container) {
-      console.error('Контейнер app-main не найден');
+      console.error('[APP] Контейнер app-main не найден');
       return;
     }
+    console.log('[APP] Контейнер app-main найден');
 
     // Проверяем что route существует
     if (!route) {
-      console.error('Route не найден для пути:', path);
+      console.error('[APP] Route не найден для пути:', path);
       return;
     }
+    console.log('[APP] Route найден:', route);
 
     // Создаём и рендерим новую страницу
     const ComponentClass = route.component;
+    console.log('[APP] Создаём компонент для пути:', path);
 
     if (path === '/') {
       this.currentPage = new ComponentClass(container);
@@ -97,11 +117,17 @@ class App {
     } else if (path === '/recipient/:id') {
       this.currentPage = new ComponentClass(container, params.id);
     }
+
+    console.log('[APP] Компонент создан и отрендерен');
   }
 }
 
 // Запуск приложения
+console.log('[MAIN] Регистрируем DOMContentLoaded...');
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[MAIN] DOMContentLoaded сработал, создаём App...');
   const app = new App();
+  console.log('[MAIN] App создан, вызываем init()...');
   app.init();
 });
+console.log('[MAIN] main.js полностью загружен');
