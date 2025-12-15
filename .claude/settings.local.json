@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(npm run dev:*)",
+      "Bash(start http://localhost:3001)",
+      "Bash(start http://localhost:3002)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(start http://localhost:3003)",
+      "Bash(curl:*)",
+      "Bash(start http://localhost:3000)",
+      "Bash(start http://localhost:3001/gift-planner/)",
+      "Bash(dir:*)",
+      "Bash(test:*)",
+      "Bash(start http://localhost:3000/gift-planner/)",
+      "Bash(start http://localhost:3002/gift-planner/)",
+      "Bash(bubblewrap:*)",
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(./gradlew:*)",
+      "Bash(npm install:*)",
+      "Bash(npx cap init:*)",
+      "Bash(npx cap add android)",
+      "Bash(npx cap:*)",
+      "Bash(java -version:*)",
+      "Bash(export JAVA_HOME=\"$HOME/.bubblewrap/jdk/jdk-17.0.11+9\")",
+      "Bash(export PATH=\"$JAVA_HOME/bin:$PATH\")",
+      "Bash(export ANDROID_HOME=\"$HOME/.bubblewrap/android_sdk\")",
+      "Bash(export PATH=\"$JAVA_HOME/bin:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH\")",
+      "Bash(export JAVA_HOME=\"/c/Users/Dmitriy/.bubblewrap/jdk/jdk-17.0.11+9\")",
+      "Bash(export ANDROID_HOME=\"/c/Users/Dmitriy/.bubblewrap/android_sdk\")",
+      "Bash(where:*)",
+      "Bash(copy store_icon.png resourcesicon.png)",
+      "Bash(npx @capacitor/assets:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

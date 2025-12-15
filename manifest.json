@@ -1,6 +1,6 @@
 {
-  "name": "Gift Planner",
-  "short_name": "Gifts",
+  "name": "Планировщик Подарков",
+  "short_name": "Подарки",
   "description": "Планировщик подарков для всех праздников",
   "start_url": "/gift-planner/",
   "display": "standalone",

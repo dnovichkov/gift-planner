@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   root: '.',
-  base: '/gift-planner/',
+  base: './', // Относительные пути для локального Android APK
   server: {
     port: 3000,
     open: true,
