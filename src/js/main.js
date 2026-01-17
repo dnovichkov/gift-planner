@@ -7,6 +7,10 @@ import { toast } from './components/Toast.js';
 import { HomePage } from './pages/HomePage.js';
 import { HolidayDashboard } from './pages/HolidayDashboard.js';
 import { RecipientDetail } from './pages/RecipientDetail.js';
+import { authService } from './services/AuthService.js';
+import { syncManager } from './services/SyncManager.js';
+import { migrationService } from './services/MigrationService.js';
+import { UserProfile } from './components/UserProfile.js';
 
 console.log('[MAIN] Все импорты загружены');
 
@@ -16,6 +20,7 @@ class App {
     this.eventBus = eventBus;
     this.db = db;
     this.currentPage = null;
+    this.userProfile = null;
   }
 
   async init() {
@@ -31,6 +36,37 @@ class App {
       console.log('[APP] 4. Инициализируем Toast...');
       toast.init();
       console.log('[APP] 5. Toast готов');
+
+      // Инициализируем AuthService
+      console.log('[APP] 5.1. Инициализируем AuthService...');
+      const isSupabaseConfigured = authService.init();
+      console.log('[APP] 5.2. Supabase настроен:', isSupabaseConfigured);
+
+      // Инициализируем SyncManager и MigrationService
+      if (isSupabaseConfigured) {
+        console.log('[APP] 5.3. Инициализируем SyncManager...');
+        syncManager.init(authService);
+        console.log('[APP] 5.4. SyncManager готов');
+
+        console.log('[APP] 5.4.1. Инициализируем MigrationService...');
+        migrationService.init(authService, syncManager);
+        console.log('[APP] 5.4.2. MigrationService готов');
+      }
+
+      // Инициализируем компонент профиля пользователя
+      const profileContainer = document.getElementById('user-profile-container');
+      if (profileContainer) {
+        console.log('[APP] 5.5. Инициализируем UserProfile...');
+        this.userProfile = new UserProfile(profileContainer);
+        console.log('[APP] 5.6. UserProfile готов');
+      }
+
+      // Проверяем текущую сессию
+      if (isSupabaseConfigured) {
+        console.log('[APP] 5.7. Проверяем сессию...');
+        await authService.getCurrentUser();
+        console.log('[APP] 5.8. Сессия проверена');
+      }
 
       // Регистрируем маршруты
       console.log('[APP] 6. Регистрируем маршруты...');

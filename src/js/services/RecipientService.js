@@ -2,8 +2,29 @@ import { db } from '../db/idb-wrapper.js';
 import { eventBus, AppEvents } from '../events.js';
 import { giftService } from './GiftService.js';
 
+// Ленивый импорт для избежания циклических зависимостей
+let authService = null;
+let syncManager = null;
+
+const getAuthService = async () => {
+  if (!authService) {
+    const module = await import('./AuthService.js');
+    authService = module.authService;
+  }
+  return authService;
+};
+
+const getSyncManager = async () => {
+  if (!syncManager) {
+    const module = await import('./SyncManager.js');
+    syncManager = module.syncManager;
+  }
+  return syncManager;
+};
+
 /**
  * Сервис для управления одариваемыми
+ * Поддерживает синхронизацию с Supabase
  */
 class RecipientService {
   /**
@@ -13,12 +34,16 @@ class RecipientService {
    * @returns {Promise<string>} ID созданного одариваемого
    */
   async create(holidayId, data) {
+    const auth = await getAuthService();
+    const userId = auth?.getUserId() || null;
+
     const recipientData = {
       holidayId,
       name: data.name,
       type: data.type || 'adult', // adult, child, family
       note: data.note || '',
       budget: data.budget || 0,
+      userId,
     };
 
     const id = await db.add('recipients', recipientData);
@@ -26,6 +51,12 @@ class RecipientService {
 
     eventBus.emit(AppEvents.RECIPIENT_CREATED, recipient);
     console.log('Одариваемый создан:', recipient);
+
+    // Добавляем в очередь синхронизации
+    if (userId) {
+      const sync = await getSyncManager();
+      await sync.queueOperation('create', 'recipients', id, recipient);
+    }
 
     return id;
   }
@@ -84,6 +115,13 @@ class RecipientService {
 
     eventBus.emit(AppEvents.RECIPIENT_UPDATED, updatedRecipient);
     console.log('Одариваемый обновлён:', updatedRecipient);
+
+    // Добавляем в очередь синхронизации
+    const auth = await getAuthService();
+    if (auth?.isAuthenticated()) {
+      const sync = await getSyncManager();
+      await sync.queueOperation('update', 'recipients', id, updatedRecipient);
+    }
   }
 
   /**
@@ -105,6 +143,13 @@ class RecipientService {
 
     eventBus.emit(AppEvents.RECIPIENT_DELETED, id);
     console.log('Одариваемый удалён:', id);
+
+    // Добавляем в очередь синхронизации
+    const auth = await getAuthService();
+    if (auth?.isAuthenticated()) {
+      const sync = await getSyncManager();
+      await sync.queueOperation('delete', 'recipients', id, null);
+    }
   }
 
   /**

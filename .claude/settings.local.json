@@ -34,7 +34,9 @@
       "Bash(where:*)",
       "Bash(copy store_icon.png resourcesicon.png)",
       "Bash(npx @capacitor/assets:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(tree:*)",
+      "WebSearch"
     ]
   }
 }

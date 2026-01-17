@@ -86,24 +86,35 @@ export const AppEvents = {
   HOLIDAY_CREATED: 'holiday:created',
   HOLIDAY_UPDATED: 'holiday:updated',
   HOLIDAY_DELETED: 'holiday:deleted',
-  
+
   // Одариваемые
   RECIPIENT_CREATED: 'recipient:created',
   RECIPIENT_UPDATED: 'recipient:updated',
   RECIPIENT_DELETED: 'recipient:deleted',
-  
+
   // Подарки
   GIFT_CREATED: 'gift:created',
   GIFT_UPDATED: 'gift:updated',
   GIFT_DELETED: 'gift:deleted',
   GIFT_STATUS_CHANGED: 'gift:statusChanged',
-  
+
   // Навигация
   NAVIGATE: 'app:navigate',
   ROUTE_CHANGED: 'app:routeChanged',
-  
+
   // Общие
   DATA_LOADED: 'data:loaded',
   ERROR: 'app:error',
   SUCCESS: 'app:success',
+
+  // Авторизация
+  AUTH_STATE_CHANGED: 'auth:stateChanged',
+  AUTH_ERROR: 'auth:error',
+
+  // Сеть и синхронизация
+  NETWORK_STATUS_CHANGED: 'network:statusChanged',
+  SYNC_STARTED: 'sync:started',
+  SYNC_COMPLETED: 'sync:completed',
+  SYNC_ERROR: 'sync:error',
+  SYNC_CONFLICT: 'sync:conflict',
 };

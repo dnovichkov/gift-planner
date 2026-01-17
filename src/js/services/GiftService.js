@@ -1,8 +1,29 @@
 import { db } from '../db/idb-wrapper.js';
 import { eventBus, AppEvents } from '../events.js';
 
+// Ленивый импорт для избежания циклических зависимостей
+let authService = null;
+let syncManager = null;
+
+const getAuthService = async () => {
+  if (!authService) {
+    const module = await import('./AuthService.js');
+    authService = module.authService;
+  }
+  return authService;
+};
+
+const getSyncManager = async () => {
+  if (!syncManager) {
+    const module = await import('./SyncManager.js');
+    syncManager = module.syncManager;
+  }
+  return syncManager;
+};
+
 /**
  * Сервис для управления подарками
+ * Поддерживает синхронизацию с Supabase
  */
 class GiftService {
   /**
@@ -13,6 +34,9 @@ class GiftService {
    * @returns {Promise<string>} ID созданного подарка
    */
   async create(recipientId, holidayId, data) {
+    const auth = await getAuthService();
+    const userId = auth?.getUserId() || null;
+
     const giftData = {
       recipientId,
       holidayId,
@@ -21,6 +45,7 @@ class GiftService {
       cost: data.cost || 0,
       status: data.status || 'not_bought', // not_bought, bought
       priority: data.priority || 'medium', // low, medium, high
+      userId,
     };
 
     const id = await db.add('gifts', giftData);
@@ -28,6 +53,12 @@ class GiftService {
 
     eventBus.emit(AppEvents.GIFT_CREATED, gift);
     console.log('Подарок создан:', gift);
+
+    // Добавляем в очередь синхронизации
+    if (userId) {
+      const sync = await getSyncManager();
+      await sync.queueOperation('create', 'gifts', id, gift);
+    }
 
     return id;
   }
@@ -127,6 +158,13 @@ class GiftService {
 
     eventBus.emit(AppEvents.GIFT_UPDATED, updatedGift);
     console.log('Подарок обновлён:', updatedGift);
+
+    // Добавляем в очередь синхронизации
+    const auth = await getAuthService();
+    if (auth?.isAuthenticated()) {
+      const sync = await getSyncManager();
+      await sync.queueOperation('update', 'gifts', id, updatedGift);
+    }
   }
 
   /**
@@ -138,6 +176,7 @@ class GiftService {
     const gift = await this.getById(id);
     const newStatus = gift.status === 'bought' ? 'not_bought' : 'bought';
 
+    // update() уже добавит в очередь синхронизации
     await this.update(id, { status: newStatus });
 
     eventBus.emit(AppEvents.GIFT_STATUS_CHANGED, { id, status: newStatus });
@@ -154,6 +193,13 @@ class GiftService {
 
     eventBus.emit(AppEvents.GIFT_DELETED, id);
     console.log('Подарок удалён:', id);
+
+    // Добавляем в очередь синхронизации
+    const auth = await getAuthService();
+    if (auth?.isAuthenticated()) {
+      const sync = await getSyncManager();
+      await sync.queueOperation('delete', 'gifts', id, null);
+    }
   }
 
   /**
