@@ -1,0 +1,7 @@
+services:
+  gift-planner:
+    build: .
+    container_name: gift-planner
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3004:80"
