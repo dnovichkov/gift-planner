@@ -178,18 +178,33 @@ export class Component {
   }
 
   /**
+   * Экранировать HTML-спецсимволы для безопасной вставки в DOM
+   * @param {string} str - Исходная строка
+   * @returns {string} Экранированная строка
+   */
+  escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  /**
    * Показать ошибку
    * @param {Error|string} error - Ошибка
    */
   showError(error) {
-    const message = error instanceof Error ? error.message : error;
+    const message = error instanceof Error ? error.message : String(error);
+    const safeMessage = this.escapeHtml(message);
     this.container.innerHTML = `
       <div class="error-state" role="alert">
         <h3>Ошибка</h3>
-        <p>${message}</p>
-        <button onclick="location.reload()">Перезагрузить</button>
+        <p>${safeMessage}</p>
       </div>
     `;
+    const reloadBtn = document.createElement('button');
+    reloadBtn.textContent = 'Перезагрузить';
+    this.container.querySelector('.error-state').appendChild(reloadBtn);
+    reloadBtn.addEventListener('click', () => location.reload());
   }
 
   /**
