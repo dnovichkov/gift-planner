@@ -5,13 +5,14 @@
 name: Server
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
 
 jobs:
   image:
     name: Image
-    if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
     uses: dnovichkov/sites_configs/.github/workflows/build-image.yml@main
     permissions:
       contents: read
@@ -26,6 +27,6 @@ jobs:
   deploy:
     name: Deploy
     needs: [image]
-    if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
     uses: dnovichkov/sites_configs/.github/workflows/deploy.yml@main
     secrets: inherit
