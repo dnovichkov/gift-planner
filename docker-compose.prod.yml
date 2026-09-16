@@ -1,0 +1,35 @@
+# Прод: статика за nginx. Запускается на сервере скриптом деплоя из sites_configs,
+# который подставляет IMAGE_TAG — sha коммита, чей образ собрал CI (.github/workflows/server.yml).
+# Сервер ничего не собирает; build оставлен для локальной проверки:
+#   docker compose -f docker-compose.prod.yml build
+#
+# Портов наружу нет: Caddy из sites_configs находит контейнер по container_name в сети web.
+# Для разработки — docker-compose.yml.
+
+# Имя проекта закреплено: от него зависят имена контейнеров и томов на сервере.
+name: gift-planner
+
+services:
+  gift-planner:
+    image: ghcr.io/dnovichkov/gift-planner:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: "${VITE_SUPABASE_URL:-}"
+        VITE_SUPABASE_ANON_KEY: "${VITE_SUPABASE_ANON_KEY:-}"
+    container_name: gift-planner
+    restart: unless-stopped
+    healthcheck:
+      # wget из busybox есть в nginx:alpine; 127.0.0.1, а не localhost — внутри контейнера
+      # localhost может разрешиться в ::1, а nginx слушает только IPv4.
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - web
+
+networks:
+  web:
+    external: true

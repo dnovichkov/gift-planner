@@ -1,0 +1,31 @@
+# Образ для сервера и деплой на gift-planner.dmdp.ru. Публикация на GitHub Pages — отдельно, в deploy.yml.
+#
+# Отдельных тестов в проекте нет: проверкой служит сама сборка образа (npm run build внутри Dockerfile).
+# Общие workflow лежат в sites_configs рядом со скриптом деплоя сервера.
+name: Server
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  image:
+    name: Image
+    if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+    uses: dnovichkov/sites_configs/.github/workflows/build-image.yml@main
+    permissions:
+      contents: read
+      packages: write
+    with:
+      image: gift-planner
+      # Supabase необязателен: без этих переменных приложение хранит данные только в браузере.
+      build-args: |
+        VITE_SUPABASE_URL=${{ vars.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY=${{ vars.VITE_SUPABASE_ANON_KEY }}
+
+  deploy:
+    name: Deploy
+    needs: [image]
+    if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+    uses: dnovichkov/sites_configs/.github/workflows/deploy.yml@main
+    secrets: inherit

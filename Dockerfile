@@ -5,6 +5,11 @@ RUN npm ci
 COPY . .
 # Меняем base на / для веб-сервера (вместо ./ для Android)
 RUN sed -i "s|base: './'|base: '/'|" vite.config.js
+# Supabase включается, только если заданы оба значения; Vite вшивает их в бандл при сборке.
+# Их передаёт CI из переменных репозитория. ARG без значения по умолчанию: не переданный
+# аргумент не попадает в окружение и не перекрывает .env при сборке без CI.
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
 RUN npm run build
 
 FROM nginx:alpine
